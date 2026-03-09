@@ -91,6 +91,14 @@ def prepare_datasets(csv_path, test_size=0.2, random_state=42):
 
     # build time-aware features: for each fight, compute fighter history using only earlier fights
     def build_time_aware_features(df):
+        def to_float(v, default=0.0):
+            try:
+                if pd.isna(v):
+                    return default
+                return float(v)
+            except Exception:
+                return default
+
         # history per fighter
         history = {}
         rows = []
@@ -141,12 +149,21 @@ def prepare_datasets(csv_path, test_size=0.2, random_state=42):
             r_static = [row.get('r_height', 0.0) or 0.0, row.get('r_weight', 0.0) or 0.0, row.get('r_reach', 0.0) or 0.0]
             b_static = [row.get('b_height', 0.0) or 0.0, row.get('b_weight', 0.0) or 0.0, row.get('b_reach', 0.0) or 0.0]
 
+            # Include average closing odds: (min + max) / 2 for each side.
+            r_close_min = to_float(row.get('r_closing_range_min', row.get('closing_range_min', np.nan)), default=np.nan)
+            r_close_max = to_float(row.get('r_closing_range_max', row.get('closing_range_max', np.nan)), default=np.nan)
+            b_close_min = to_float(row.get('b_closing_range_min', row.get('closing_range_min', np.nan)), default=np.nan)
+            b_close_max = to_float(row.get('b_closing_range_max', row.get('closing_range_max', np.nan)), default=np.nan)
+
+            r_close_avg = np.nanmean([r_close_min, r_close_max]) if not (np.isnan(r_close_min) and np.isnan(r_close_max)) else 100.0
+            b_close_avg = np.nanmean([b_close_min, b_close_max]) if not (np.isnan(b_close_min) and np.isnan(b_close_max)) else 100.0
+
             # division, title_fight, total_rounds
             div = row.get('division')
             title = row.get('title_fight', 0.0) or 0.0
             rounds = row.get('total_rounds', 0.0) or 0.0
 
-            feat_row = r_feats + r_static + b_feats + b_static + [0.0 if pd.isna(div) else div, title, rounds]
+            feat_row = r_feats + r_static + [r_close_avg] + b_feats + b_static + [b_close_avg] + [0.0 if pd.isna(div) else div, title, rounds]
             rows.append(feat_row)
 
             # update history with this fight's in-fight results for future fights

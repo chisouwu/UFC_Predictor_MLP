@@ -13,3 +13,5 @@
 .wget-hsts
 /.vscode/
 /.idea/
+/gradio_templates/
+/streamlit_templates/
