@@ -46,6 +46,8 @@ def build_features(df: pd.DataFrame):
     allowed_suffixes = {
         'wins', 'losses', 'draws',
         'height', 'weight', 'reach',
+        'splm', 'str_acc', 'sapm', 'str_def',
+        'td_avg', 'td_avg_acc', 'td_def', 'sub_avg'
     }
 
     # select r_ and b_ columns that are pre-fight

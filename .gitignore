@@ -1,5 +1,15 @@
 # Lightning studio
-/lightning_studio/
+/.lightning_studio/
 
 # CoPilot
 /.copilot/
+
+# Servers?
+.cursor-server
+.vscode-server
+.windsurf-server
+
+#
+.wget-hsts
+/.vscode/
+/.idea/
